@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>평 ↔ 제곱미터(㎡) 변환기 | 즉시 계산</title>
+<meta name="description" content="평과 제곱미터(㎡)를 즉시 양방향 변환. 아파트·부동산 면적 계산에 사용하세요. 1평 = 3.305785㎡.">
+<meta name="keywords" content="평 제곱미터 변환, 평수 계산기, 평 m2 변환, 제곱미터 평 변환, 면적 변환기">
+<link rel="canonical" href="https://mureds.github.io/tools/">
+<meta property="og:title" content="평 ↔ 제곱미터(㎡) 변환기 | 즉시 계산">
+<meta property="og:description" content="평과 제곱미터(㎡)를 즉시 양방향 변환. 아파트·부동산 면적 계산에 사용하세요. 1평 = 3.305785㎡.">
+<meta property="og:type" content="website">
+<!-- ADSENSE_HEAD: 애드센스 승인 후 여기에 로더 스크립트 삽입 -->
+<style>
+  :root { --ink:#1a1a1a; --muted:#6b6b6b; --line:#e6e6e6; --accent:#2f6f4f; --bg:#fbfaf7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.6; }
+  main { max-width:560px; margin:0 auto; padding:40px 20px 64px; }
+  h1 { font-size:26px; font-weight:700; margin:0 0 6px; letter-spacing:-0.02em; }
+  .sub { color:var(--muted); margin:0 0 28px; font-size:15px; }
+  .tool { background:#fff; border:1px solid var(--line); border-radius:14px; padding:24px; }
+  .adslot { margin:28px 0; min-height:90px; border:1px dashed var(--line); border-radius:10px;
+            display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+  .about { margin-top:32px; font-size:14px; color:var(--muted); }
+  footer { margin-top:40px; font-size:12px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>평 ↔ 제곱미터 변환기</h1>
+  <p class="sub">평수를 입력하면 ㎡로, ㎡를 입력하면 평으로 바로 바꿔줍니다. (1평 = 3.305785㎡)</p>
+
+  <div class="tool">
+    
+<div style="display:flex;flex-direction:column;gap:14px">
+  <label style="font-size:13px;color:var(--muted)">평
+    <input id="pyeong" type="number" inputmode="decimal" placeholder="예: 32"
+      style="width:100%;margin-top:6px;padding:12px;font-size:18px;border:1px solid var(--line);border-radius:10px">
+  </label>
+  <div style="text-align:center;color:var(--accent);font-size:20px">⇅</div>
+  <label style="font-size:13px;color:var(--muted)">제곱미터 (㎡)
+    <input id="sqm" type="number" inputmode="decimal" placeholder="예: 105.8"
+      style="width:100%;margin-top:6px;padding:12px;font-size:18px;border:1px solid var(--line);border-radius:10px">
+  </label>
+</div>
+<script>
+  var P2M = 3.305785;
+  var p = document.getElementById('pyeong');
+  var s = document.getElementById('sqm');
+  function round(n){ return Math.round(n*100)/100; }
+  p.addEventListener('input', function(){
+    s.value = p.value === '' ? '' : round(parseFloat(p.value) * P2M);
+  });
+  s.addEventListener('input', function(){
+    p.value = s.value === '' ? '' : round(parseFloat(s.value) / P2M);
+  });
+</script>
+
+  </div>
+
+  <div class="adslot">(광고 슬롯 — 애드센스 승인 후 표시)</div>
+
+  <section class="about">부동산 매물이나 아파트 면적은 '평'과 '제곱미터(㎡)'가 섞여 표기됩니다. 1평은 정확히 3.305785㎡이며, 반대로 1㎡는 약 0.3025평입니다. 예를 들어 84㎡ 아파트는 약 25.4평, 32평은 약 105.8㎡입니다. 위 변환기는 어느 쪽에 입력해도 반대 값을 실시간으로 계산합니다.</section>
+
+  <footer>자동 생성 도구 · 결과는 참고용입니다.</footer>
+</main>
+</body>
+</html>
