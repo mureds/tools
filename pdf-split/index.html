@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF 나누기 | 무료 온라인 PDF 분할</title>
+<meta name="description" content="PDF를 페이지별로 나눕니다. 원하는 페이지 범위만 뽑거나 낱장으로 분할. 브라우저에서 바로 처리해 업로드 없이 안전. 화질·텍스트 그대로 유지.">
+<meta name="keywords" content="PDF 나누기, PDF 분할, PDF 페이지 분리, PDF 자르기, PDF split">
+<link rel="canonical" href="https://mureds.github.io/tools/pdf-split/">
+<meta property="og:title" content="PDF 나누기 | 무료 온라인 PDF 분할">
+<meta property="og:description" content="PDF를 페이지 범위로 뽑거나 낱장으로 나눕니다. 브라우저 처리, 화질 손실 없음.">
+<meta property="og:type" content="website">
+<!-- ADSENSE_HEAD: 애드센스 승인 후 여기에 로더 스크립트 삽입 -->
+<style>
+  :root { --ink:#1a1a1a; --muted:#6b6b6b; --line:#e6e6e6; --accent:#2f6f4f; --bg:#fbfaf7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.6; }
+  main { max-width:560px; margin:0 auto; padding:40px 20px 64px; }
+  h1 { font-size:26px; font-weight:700; margin:0 0 6px; letter-spacing:-0.02em; }
+  .sub { color:var(--muted); margin:0 0 28px; font-size:15px; }
+  .tool { background:#fff; border:1px solid var(--line); border-radius:14px; padding:24px; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px 16px; text-align:center;
+          color:var(--muted); cursor:pointer; transition:border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color:var(--accent); background:#f4f9f6; }
+  .drop strong { color:var(--ink); }
+  .fileinfo { margin:14px 0 0; font-size:14px; }
+  .modes { display:flex; gap:8px; margin:18px 0 6px; }
+  .modes label { flex:1; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center;
+                 cursor:pointer; font-size:14px; }
+  .modes input { display:none; }
+  .modes label:has(input:checked) { border-color:var(--accent); background:#f4f9f6; }
+  .modes input:checked + span { color:var(--accent); font-weight:700; }
+  .rangebox { margin:6px 0 0; }
+  .rangebox input { width:100%; padding:12px; font-size:16px; border:1px solid var(--line); border-radius:10px; }
+  .hint { font-size:12px; color:var(--muted); margin:6px 0 0; }
+  button.go { width:100%; margin-top:18px; padding:14px; font-size:16px; font-weight:600; color:#fff;
+              background:var(--accent); border:none; border-radius:10px; cursor:pointer; }
+  button.go:disabled { background:#b9c9c0; cursor:not-allowed; }
+  .status { margin-top:16px; font-size:14px; color:var(--muted); min-height:20px; }
+  .result { margin-top:16px; padding:16px; border:1px solid var(--line); border-radius:10px; display:none; }
+  .result.show { display:block; }
+  .result a { display:inline-block; margin:6px 8px 0 0; padding:10px 16px; background:var(--accent);
+              color:#fff; text-decoration:none; border-radius:8px; font-size:14px; }
+  .adslot { margin:28px 0; min-height:90px; border:1px dashed var(--line); border-radius:10px;
+            display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+  .about { margin-top:32px; font-size:14px; color:var(--muted); }
+  footer { margin-top:40px; font-size:12px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>PDF 나누기</h1>
+  <p class="sub">원하는 페이지만 뽑거나, 낱장으로 나눕니다. 원본을 그대로 이어받아 화질·텍스트 손실이 없어요. 파일은 서버로 올라가지 않습니다.</p>
+
+  <div class="tool">
+    <div id="drop" class="drop">
+      <p><strong>여기를 눌러 PDF 선택</strong><br>또는 파일을 끌어다 놓기</p>
+    </div>
+    <input id="file" type="file" accept="application/pdf" style="display:none">
+    <p id="fileinfo" class="fileinfo"></p>
+
+    <div class="modes">
+      <label><input type="radio" name="mode" value="range" checked><span>페이지 범위 뽑기</span></label>
+      <label><input type="radio" name="mode" value="each"><span>낱장으로 모두</span></label>
+    </div>
+
+    <div id="rangeBox" class="rangebox">
+      <input id="range" type="text" placeholder="예: 1-3, 5, 8-10" inputmode="text">
+      <p class="hint">추출할 페이지를 쉼표로 구분해 적으세요. 예) <b>1-3, 5, 8-10</b></p>
+    </div>
+
+    <button id="go" class="go" disabled>나누기</button>
+
+    <div id="status" class="status"></div>
+
+    <div id="result" class="result">
+      <div id="resultText" style="margin-bottom:8px"></div>
+      <div id="downloads"></div>
+    </div>
+  </div>
+
+  <div class="adslot"><!-- ADSENSE_SLOT -->(광고 슬롯 — 애드센스 승인 후 표시)</div>
+
+  <section class="about">
+    긴 PDF에서 필요한 부분만 뽑거나, 여러 문서가 한 파일로 묶인 것을 낱장으로 분리할 때 사용하세요.
+    "페이지 범위 뽑기"는 적어 넣은 페이지들만 모아 하나의 PDF로 만들고,
+    "낱장으로 모두"는 매 페이지를 개별 PDF로 나눕니다.
+    원본 페이지를 그대로 옮기므로 글자 선택과 화질이 유지됩니다.
+    모든 처리는 여러분의 기기 안에서 이뤄지며 파일은 외부로 전송되지 않습니다.
+  </section>
+
+  <footer>자동 생성 도구 · 결과는 참고용입니다. · <a href="../" style="color:inherit">다른 도구 보기</a></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+<script>
+(function () {
+  var fileInput = document.getElementById("file");
+  var drop = document.getElementById("drop");
+  var fileinfo = document.getElementById("fileinfo");
+  var goBtn = document.getElementById("go");
+  var statusEl = document.getElementById("status");
+  var resultEl = document.getElementById("result");
+  var rangeInput = document.getElementById("range");
+  var rangeBox = document.getElementById("rangeBox");
+  var chosen = null;
+  var pageCount = 0;
+
+  function fmt(bytes) {
+    if (bytes > 1048576) return (bytes / 1048576).toFixed(2) + " MB";
+    return (bytes / 1024).toFixed(0) + " KB";
+  }
+  function currentMode() {
+    var r = document.querySelector('input[name="mode"]:checked');
+    return r ? r.value : "range";
+  }
+  function refreshMode() {
+    rangeBox.style.display = currentMode() === "range" ? "block" : "none";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="mode"]'),
+    function (r) { r.addEventListener("change", refreshMode); });
+  refreshMode();
+
+  async function pickFile(f) {
+    if (!f) return;
+    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) {
+      statusEl.textContent = "PDF 파일만 넣을 수 있어요.";
+      return;
+    }
+    chosen = f;
+    statusEl.textContent = "";
+    resultEl.className = "result";
+    goBtn.disabled = false;
+    fileinfo.textContent = f.name + " (" + fmt(f.size) + ")";
+    try {
+      var buf = await f.arrayBuffer();
+      var doc = await PDFLib.PDFDocument.load(buf);
+      pageCount = doc.getPageCount();
+      fileinfo.textContent = f.name + " · 총 " + pageCount + "쪽 (" + fmt(f.size) + ")";
+    } catch (e) { pageCount = 0; }
+  }
+
+  drop.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { pickFile(fileInput.files[0]); });
+  ["dragenter", "dragover"].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (ev) {
+    if (ev.dataTransfer && ev.dataTransfer.files[0]) pickFile(ev.dataTransfer.files[0]);
+  });
+
+  // "1-3, 5" → [0,1,2,4] (0기반, 유효 페이지만)
+  function parseRange(text, total) {
+    var out = [];
+    text.split(",").forEach(function (part) {
+      part = part.trim();
+      if (!part) return;
+      var m = part.match(/^(\d+)\s*-\s*(\d+)$/);
+      if (m) {
+        var a = parseInt(m[1], 10), b = parseInt(m[2], 10);
+        if (a > b) { var t = a; a = b; b = t; }
+        for (var i = a; i <= b; i++) if (i >= 1 && i <= total) out.push(i - 1);
+      } else if (/^\d+$/.test(part)) {
+        var n = parseInt(part, 10);
+        if (n >= 1 && n <= total) out.push(n - 1);
+      }
+    });
+    return out.filter(function (v, i, s) { return s.indexOf(v) === i; });
+  }
+
+  function addDownload(container, blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = name; a.textContent = name;
+    container.appendChild(a);
+  }
+
+  goBtn.addEventListener("click", function () { run().catch(showError); });
+
+  function showError(err) {
+    console.error(err);
+    statusEl.textContent = "처리 중 문제가 생겼어요. 암호가 걸린 PDF는 먼저 해제해 주세요.";
+    goBtn.disabled = false;
+  }
+
+  async function run() {
+    if (!chosen) return;
+    if (!window.PDFLib) {
+      statusEl.textContent = "라이브러리를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.";
+      return;
+    }
+    goBtn.disabled = true;
+    resultEl.className = "result";
+    var downloads = document.getElementById("downloads");
+    downloads.innerHTML = "";
+
+    var buf = await chosen.arrayBuffer();
+    var src = await PDFLib.PDFDocument.load(buf);
+    var total = src.getPageCount();
+    var baseName = chosen.name.replace(/\.pdf$/i, "");
+    var mode = currentMode();
+
+    if (mode === "range") {
+      var idxs = parseRange(rangeInput.value, total);
+      if (idxs.length === 0) {
+        statusEl.textContent = "유효한 페이지를 찾지 못했어요. 예: 1-3, 5 (총 " + total + "쪽)";
+        goBtn.disabled = false;
+        return;
+      }
+      statusEl.textContent = "뽑는 중… " + idxs.length + "쪽";
+      var outDoc = await PDFLib.PDFDocument.create();
+      var copied = await outDoc.copyPages(src, idxs);
+      copied.forEach(function (p) { outDoc.addPage(p); });
+      var bytes = await outDoc.save();
+      addDownload(downloads, new Blob([bytes], { type: "application/pdf" }),
+        baseName + "_추출.pdf");
+      document.getElementById("resultText").textContent =
+        idxs.length + "개 페이지를 뽑았어요.";
+    } else {
+      // 낱장으로 모두
+      for (var i = 0; i < total; i++) {
+        statusEl.textContent = "나누는 중… " + (i + 1) + " / " + total;
+        var one = await PDFLib.PDFDocument.create();
+        var pgs = await one.copyPages(src, [i]);
+        one.addPage(pgs[0]);
+        var b = await one.save();
+        var num = String(i + 1).padStart(3, "0");
+        addDownload(downloads, new Blob([b], { type: "application/pdf" }),
+          baseName + "_p" + num + ".pdf");
+      }
+      document.getElementById("resultText").textContent =
+        total + "개 낱장으로 나눴어요. 각각 내려받으세요.";
+    }
+
+    statusEl.textContent = "";
+    resultEl.className = "result show";
+    goBtn.disabled = false;
+  }
+})();
+</script>
+</body>
+</html>
