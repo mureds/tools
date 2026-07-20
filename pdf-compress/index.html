@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PDF 용량 줄이기 | 무료 온라인 PDF 압축</title>
+<meta name="description" content="PDF 파일 용량을 브라우저에서 바로 줄입니다. 업로드 없이 내 기기 안에서 처리해 안전. 약·중·강 3단계 압축. 스캔·이미지 PDF에 효과적.">
+<meta name="keywords" content="PDF 용량 줄이기, PDF 압축, PDF 크기 줄이기, PDF 압축 무료, PDF compress">
+<link rel="canonical" href="https://mureds.github.io/tools/pdf-compress/">
+<meta property="og:title" content="PDF 용량 줄이기 | 무료 온라인 PDF 압축">
+<meta property="og:description" content="업로드 없이 브라우저 안에서 PDF 용량을 줄입니다. 약·중·강 3단계.">
+<meta property="og:type" content="website">
+<!-- ADSENSE_HEAD: 애드센스 승인 후 여기에 로더 스크립트 삽입 -->
+<style>
+  :root { --ink:#1a1a1a; --muted:#6b6b6b; --line:#e6e6e6; --accent:#2f6f4f; --bg:#fbfaf7; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+         color:var(--ink); background:var(--bg); line-height:1.6; }
+  main { max-width:560px; margin:0 auto; padding:40px 20px 64px; }
+  h1 { font-size:26px; font-weight:700; margin:0 0 6px; letter-spacing:-0.02em; }
+  .sub { color:var(--muted); margin:0 0 28px; font-size:15px; }
+  .tool { background:#fff; border:1px solid var(--line); border-radius:14px; padding:24px; }
+  .drop { border:2px dashed var(--line); border-radius:12px; padding:28px 16px; text-align:center;
+          color:var(--muted); cursor:pointer; transition:border-color .15s, background .15s; }
+  .drop:hover, .drop.over { border-color:var(--accent); background:#f4f9f6; }
+  .drop strong { color:var(--ink); }
+  .levels { display:flex; gap:8px; margin:18px 0 6px; }
+  .levels label { flex:1; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center;
+                  cursor:pointer; font-size:14px; }
+  .levels input { display:none; }
+  .levels input:checked + span { color:var(--accent); font-weight:700; }
+  .levels label:has(input:checked) { border-color:var(--accent); background:#f4f9f6; }
+  .lvl-note { font-size:12px; color:var(--muted); margin:0 0 16px; min-height:16px; }
+  button.go { width:100%; padding:14px; font-size:16px; font-weight:600; color:#fff;
+              background:var(--accent); border:none; border-radius:10px; cursor:pointer; }
+  button.go:disabled { background:#b9c9c0; cursor:not-allowed; }
+  .status { margin-top:16px; font-size:14px; color:var(--muted); min-height:20px; }
+  .result { margin-top:16px; padding:16px; border:1px solid var(--line); border-radius:10px; display:none; }
+  .result.show { display:block; }
+  .result .big { font-size:22px; font-weight:700; color:var(--accent); }
+  .result a { display:inline-block; margin-top:10px; padding:10px 16px; background:var(--accent);
+              color:#fff; text-decoration:none; border-radius:8px; font-size:14px; }
+  .warn { font-size:12px; color:#9a6b00; background:#fff8e6; border:1px solid #f0e0b0;
+          border-radius:8px; padding:10px; margin-top:14px; }
+  .adslot { margin:28px 0; min-height:90px; border:1px dashed var(--line); border-radius:10px;
+            display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+  .about { margin-top:32px; font-size:14px; color:var(--muted); }
+  footer { margin-top:40px; font-size:12px; color:var(--muted); text-align:center; }
+</style>
+</head>
+<body>
+<main>
+  <h1>PDF 용량 줄이기</h1>
+  <p class="sub">파일이 서버로 올라가지 않습니다. 내 브라우저 안에서 바로 압축돼요. 스캔·이미지가 많은 PDF일수록 효과가 큽니다.</p>
+
+  <div class="tool">
+    <div id="drop" class="drop">
+      <p><strong>여기를 눌러 PDF 선택</strong><br>또는 파일을 끌어다 놓기</p>
+      <p id="fileName" style="font-size:13px"></p>
+    </div>
+    <input id="file" type="file" accept="application/pdf" style="display:none">
+
+    <div class="levels">
+      <label><input type="radio" name="lvl" value="light"><span>약</span></label>
+      <label><input type="radio" name="lvl" value="medium" checked><span>중</span></label>
+      <label><input type="radio" name="lvl" value="strong"><span>강</span></label>
+    </div>
+    <p id="lvlNote" class="lvl-note"></p>
+
+    <button id="go" class="go" disabled>압축하기</button>
+
+    <div id="status" class="status"></div>
+
+    <div id="result" class="result">
+      <div>원본 <span id="before"></span> → 압축 <span id="after"></span></div>
+      <div class="big" id="saved"></div>
+      <a id="download" href="#" download>압축된 PDF 내려받기</a>
+    </div>
+
+    <div class="warn">
+      압축 과정에서 각 페이지가 이미지로 다시 그려집니다. 그래서 <b>텍스트 선택·검색 기능은 사라질 수 있어요.</b>
+      스캔 문서·사진 위주 PDF엔 문제없지만, 글자 위주 PDF는 원래 용량이 작아 거의 줄지 않습니다.
+    </div>
+  </div>
+
+  <div class="adslot"><!-- ADSENSE_SLOT -->(광고 슬롯 — 애드센스 승인 후 표시)</div>
+
+  <section class="about">
+    PDF는 안에 든 이미지가 용량 대부분을 차지합니다. 이 도구는 각 페이지를 정해진 해상도로 다시 그린 뒤
+    이미지 품질을 낮춰 파일을 줄입니다. 이메일 첨부 한도(보통 25MB)를 넘겨 못 보내는 스캔 문서,
+    사진이 많은 자료를 줄일 때 유용합니다. 모든 처리는 여러분의 기기 안에서 이뤄지며 파일은 외부로 전송되지 않습니다.
+  </section>
+
+  <footer>자동 생성 도구 · 결과는 참고용입니다. · <a href="../" style="color:inherit">다른 도구 보기</a></footer>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function () {
+  if (window.pdfjsLib) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+  }
+
+  var PRESETS = {
+    light:  { scale: 1.5, quality: 0.82, note: "약 — 화질 거의 유지, 용량 소폭 감소" },
+    medium: { scale: 1.0, quality: 0.68, note: "중 — 화면 보기 충분. 대부분 이걸 추천" },
+    strong: { scale: 0.7, quality: 0.5,  note: "강 — 용량 최소, 이미지가 흐려질 수 있음" }
+  };
+
+  var fileInput = document.getElementById("file");
+  var drop = document.getElementById("drop");
+  var fileName = document.getElementById("fileName");
+  var goBtn = document.getElementById("go");
+  var statusEl = document.getElementById("status");
+  var resultEl = document.getElementById("result");
+  var lvlNote = document.getElementById("lvlNote");
+  var chosenFile = null;
+
+  function currentLevel() {
+    var r = document.querySelector('input[name="lvl"]:checked');
+    return r ? r.value : "medium";
+  }
+  function refreshNote() { lvlNote.textContent = PRESETS[currentLevel()].note; }
+  refreshNote();
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="lvl"]'),
+    function (r) { r.addEventListener("change", refreshNote); });
+
+  function fmt(bytes) {
+    if (bytes > 1048576) return (bytes / 1048576).toFixed(2) + " MB";
+    return (bytes / 1024).toFixed(0) + " KB";
+  }
+
+  function pickFile(f) {
+    if (!f) return;
+    if (f.type !== "application/pdf" && !/\.pdf$/i.test(f.name)) {
+      statusEl.textContent = "PDF 파일만 넣을 수 있어요.";
+      return;
+    }
+    if (f.size > 100 * 1048576) {
+      statusEl.textContent = "100MB 이하 파일을 권장해요. 더 크면 브라우저가 느려질 수 있어요.";
+    } else {
+      statusEl.textContent = "";
+    }
+    chosenFile = f;
+    fileName.textContent = f.name + " (" + fmt(f.size) + ")";
+    goBtn.disabled = false;
+    resultEl.className = "result";
+  }
+
+  drop.addEventListener("click", function () { fileInput.click(); });
+  fileInput.addEventListener("change", function () { pickFile(fileInput.files[0]); });
+  ["dragenter", "dragover"].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (e) {
+    drop.addEventListener(e, function (ev) { ev.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (ev) {
+    if (ev.dataTransfer && ev.dataTransfer.files[0]) pickFile(ev.dataTransfer.files[0]);
+  });
+
+  goBtn.addEventListener("click", function () { compress().catch(showError); });
+
+  function showError(err) {
+    console.error(err);
+    statusEl.textContent = "처리 중 문제가 생겼어요. 다른 PDF로 시도하거나, 암호가 걸린 파일은 먼저 해제해 주세요.";
+    goBtn.disabled = false;
+  }
+
+  async function compress() {
+    if (!chosenFile) return;
+    if (!window.pdfjsLib || !window.jspdf) {
+      statusEl.textContent = "라이브러리를 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.";
+      return;
+    }
+    goBtn.disabled = true;
+    resultEl.className = "result";
+    var preset = PRESETS[currentLevel()];
+
+    var buf = await chosenFile.arrayBuffer();
+    var pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    var jsPDF = window.jspdf.jsPDF;
+    var out = null;
+
+    for (var i = 1; i <= pdf.numPages; i++) {
+      statusEl.textContent = "처리 중… " + i + " / " + pdf.numPages + " 페이지";
+      var page = await pdf.getPage(i);
+
+      var base = page.getViewport({ scale: 1 });        // 원본 페이지 크기(pt 근사)
+      var view = page.getViewport({ scale: preset.scale }); // 렌더 해상도
+
+      var canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.floor(view.width));
+      canvas.height = Math.max(1, Math.floor(view.height));
+      var ctx = canvas.getContext("2d");
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      await page.render({ canvasContext: ctx, viewport: view }).promise;
+      var img = canvas.toDataURL("image/jpeg", preset.quality);
+
+      var w = base.width, h = base.height;
+      var orient = w > h ? "landscape" : "portrait";
+      if (i === 1) {
+        out = new jsPDF({ orientation: orient, unit: "pt", format: [w, h] });
+      } else {
+        out.addPage([w, h], orient);
+      }
+      out.addImage(img, "JPEG", 0, 0, w, h);
+      canvas.width = canvas.height = 0; // 메모리 해제
+    }
+
+    var blob = out.output("blob");
+    var before = chosenFile.size, after = blob.size;
+
+    document.getElementById("before").textContent = fmt(before);
+    document.getElementById("after").textContent = fmt(after);
+    var pct = Math.round((1 - after / before) * 100);
+    var savedEl = document.getElementById("saved");
+    if (pct > 0) {
+      savedEl.textContent = pct + "% 줄었어요";
+      savedEl.style.color = "var(--accent)";
+    } else {
+      savedEl.textContent = "이 파일은 거의 줄지 않았어요 (텍스트 위주 PDF일 수 있어요)";
+      savedEl.style.color = "var(--muted)";
+    }
+
+    var url = URL.createObjectURL(blob);
+    var dl = document.getElementById("download");
+    dl.href = url;
+    dl.download = chosenFile.name.replace(/\.pdf$/i, "") + "_compressed.pdf";
+
+    statusEl.textContent = "";
+    resultEl.className = "result show";
+    goBtn.disabled = false;
+  }
+})();
+</script>
+</body>
+</html>
