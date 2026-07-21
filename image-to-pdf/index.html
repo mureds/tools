@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>이미지 PDF 변환 | 사진 여러 장을 PDF로 (무료)</title>
-<meta name="description" content="JPG·PNG 사진 여러 장을 PDF 하나로 묶습니다. 파일이 서버로 전송되지 않아 신분증·서류 사진도 안전. 순서 조정 가능. 브라우저에서 바로 변환.">
+<meta name="description" content="JPG·PNG 사진 여러 장을 PDF 하나로 묶습니다. 파일이 서버로 전송되지 않아 신분증·서류 사진도 안전. 순서·방향 조정 가능. 브라우저에서 바로 변환.">
 <meta name="keywords" content="이미지 PDF 변환, 사진 PDF 변환, JPG PDF, PNG PDF, 이미지 PDF 합치기, 사진 PDF로">
 <link rel="canonical" href="https://mureds.github.io/tools/image-to-pdf/">
 <meta property="og:title" content="이미지 PDF 변환 | 사진 여러 장을 PDF로">
@@ -35,7 +35,9 @@
   ul.files button { border:1px solid var(--line); background:#fff; border-radius:7px; width:30px; height:30px;
                     cursor:pointer; font-size:15px; line-height:1; color:var(--ink); }
   ul.files button:disabled { color:#cfcfcf; cursor:default; }
-  .opts { display:flex; gap:8px; margin-top:16px; }
+  .optrow { margin-top:16px; }
+  .optrow .label { font-size:12px; color:var(--muted); margin-bottom:6px; }
+  .opts { display:flex; gap:8px; }
   .opts label { flex:1; border:1px solid var(--line); border-radius:10px; padding:10px; text-align:center;
                 cursor:pointer; font-size:13px; }
   .opts input { display:none; }
@@ -70,9 +72,21 @@
 
     <ul id="list" class="files"></ul>
 
-    <div class="opts">
-      <label><input type="radio" name="size" value="fit" checked><span>A4 페이지에 맞춤</span></label>
-      <label><input type="radio" name="size" value="orig"><span>이미지 원본 크기</span></label>
+    <div class="optrow">
+      <div class="label">페이지 크기</div>
+      <div class="opts">
+        <label><input type="radio" name="size" value="fit" checked><span>A4 페이지에 맞춤</span></label>
+        <label><input type="radio" name="size" value="orig"><span>이미지 원본 크기</span></label>
+      </div>
+    </div>
+
+    <div class="optrow" id="orientRow">
+      <div class="label">A4 방향</div>
+      <div class="opts">
+        <label><input type="radio" name="orient" value="auto" checked><span>방향 자동</span></label>
+        <label><input type="radio" name="orient" value="portrait"><span>세로</span></label>
+        <label><input type="radio" name="orient" value="landscape"><span>가로</span></label>
+      </div>
     </div>
 
     <button id="go" class="go" disabled>PDF로 만들기</button>
@@ -91,6 +105,7 @@
     스캔한 서류 사진, 영수증, 여러 장의 캡처를 하나의 PDF로 묶어 제출해야 할 때 사용하세요.
     위·아래 화살표로 순서를 바꾼 뒤 만들기를 누르면 그 순서대로 PDF가 됩니다.
     "A4 페이지에 맞춤"은 각 사진을 A4 크기에 담고, "이미지 원본 크기"는 사진 크기 그대로 페이지를 만듭니다.
+    A4 방향을 "자동"으로 두면 가로 사진은 가로 A4, 세로 사진은 세로 A4에 담깁니다.
     모든 변환은 여러분의 기기 안에서 이뤄지며, 사진은 외부로 전송되지 않습니다.
   </section>
 
@@ -106,6 +121,7 @@
   var goBtn = document.getElementById("go");
   var statusEl = document.getElementById("status");
   var resultEl = document.getElementById("result");
+  var orientRow = document.getElementById("orientRow");
   var items = []; // {file, id, url}
   var seq = 0;
 
@@ -113,6 +129,18 @@
     var r = document.querySelector('input[name="size"]:checked');
     return r ? r.value : "fit";
   }
+  function currentOrient() {
+    var r = document.querySelector('input[name="orient"]:checked');
+    return r ? r.value : "auto";
+  }
+  function refreshOrientVisibility() {
+    // 원본 크기 모드에서는 A4 방향 선택이 의미 없으므로 흐리게
+    orientRow.style.opacity = currentSize() === "orig" ? "0.4" : "1";
+    orientRow.style.pointerEvents = currentSize() === "orig" ? "none" : "auto";
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('input[name="size"]'),
+    function (r) { r.addEventListener("change", refreshOrientVisibility); });
+  refreshOrientVisibility();
 
   function addFiles(fileList) {
     Array.prototype.forEach.call(fileList, function (f) {
@@ -189,6 +217,7 @@
     goBtn.disabled = true;
     resultEl.className = "result";
     var mode = currentSize();
+    var orient = currentOrient();
     var A4 = { w: 595.28, h: 841.89 }; // pt
 
     var pdf = await PDFLib.PDFDocument.create();
@@ -202,10 +231,14 @@
         var page = pdf.addPage([img.width, img.height]);
         page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
       } else {
-        var page2 = pdf.addPage([A4.w, A4.h]);
-        var scale = Math.min(A4.w / img.width, A4.h / img.height);
+        var landscape = orient === "landscape" ||
+                        (orient === "auto" && img.width > img.height);
+        var pw = landscape ? A4.h : A4.w;
+        var ph = landscape ? A4.w : A4.h;
+        var page2 = pdf.addPage([pw, ph]);
+        var scale = Math.min(pw / img.width, ph / img.height);
         var w = img.width * scale, h = img.height * scale;
-        page2.drawImage(img, { x: (A4.w - w) / 2, y: (A4.h - h) / 2, width: w, height: h });
+        page2.drawImage(img, { x: (pw - w) / 2, y: (ph - h) / 2, width: w, height: h });
       }
     }
 
